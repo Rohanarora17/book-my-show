@@ -4,9 +4,8 @@ pragma solidity ^0.8.19;
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import '@anon-aadhaar/contracts/interfaces/IAnonAadhaar.sol';
 
-contract TokenMaster is ERC721 {
+contract ShowTime is ERC721 {
     address public owner;
-    address public anonAadhaarVerifierAddr;
     uint256 public totalOccasions;
     uint256 public totalSupply;
 
@@ -34,11 +33,11 @@ contract TokenMaster is ERC721 {
     }
     constructor(
         string memory _name, 
-        string memory _symbol,
-        address _verifierAddr
+        string memory _symbol
+
     )   ERC721(_name, _symbol) {
         owner = msg.sender;
-        anonAadhaarVerifierAddr = _verifierAddr;
+
     }
 
     function list(
@@ -65,36 +64,17 @@ contract TokenMaster is ERC721 {
         _iseighteenplus
         );
     }
-    function mint(
-        uint _id,
-        uint256 _seat,
-        uint nullifierSeed,
-        uint nullifier,
-        uint timestamp,
-        uint signal,
-        uint[4] memory revealArray, 
-        uint[8] memory groth16Proof) public payable {
+    function mint(uint _id, uint256 _seat) public payable {
         require(_id != 0 );
         require((_id <= totalOccasions));
         require(msg.value >= occasions[_id].cost);
         require(seatTaken[_id][_seat] == address(0));
         require(_seat <= occasions[_id].maxTickets);
-        require(IAnonAadhaar(anonAadhaarVerifierAddr).verifyAnonAadhaarProof(
-                nullifierSeed, // nulifier seed
-                nullifier,
-                timestamp,
-                signal,
-                revealArray,
-                groth16Proof
-            ) == true && revealArray[0] == 1, 
-            '[AnonAadhaarVote]: proof sent is not valid.');
+      
         occasions[_id].tickets -= 1;
         hasBought[_id][msg.sender] = true;
         seatTaken[_id][_seat] = msg.sender; 
-
         seatsTaken[_id].push(_seat);
-        
-        
         totalSupply++;
 
         _safeMint(msg.sender, totalSupply);
@@ -111,5 +91,5 @@ contract TokenMaster is ERC721 {
     function withdraw() public onlyOwner{
         (bool success, ) = owner.call{value: address(this).balance}("");
         require(success);
-    }
+}
 }

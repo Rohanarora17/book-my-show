@@ -2,6 +2,7 @@ const { expect } = require("chai");
 
 const NAME = "TokenMaster";
 const SYMBOL = "TM";
+const ADDDRESS = "0x8626f6940E2eb28930eFb4CeF49B2d1F2C9C1199";
 
 const OCCASION_NAME = "ETH Texas";
 const OCCASION_COST = ethers.utils.parseUnits("1", "ether");
@@ -20,8 +21,8 @@ describe("TokenMaster", () => {
     [deployer, buyer] = await ethers.getSigners();
 
     // Deploy contract
-    const TokenMaster = await ethers.getContractFactory("TokenMaster");
-    tokenMaster = await TokenMaster.deploy(NAME, SYMBOL);
+    const TokenMaster = await ethers.getContractFactory("ShowTime");
+    tokenMaster = await TokenMaster.deploy(NAME, SYMBOL,ADDDRESS);
 
     const transaction = await tokenMaster
       .connect(deployer)
@@ -50,6 +51,10 @@ describe("TokenMaster", () => {
     it("Sets the owner", async () => {
       expect(await tokenMaster.owner()).to.equal(deployer.address);
     });
+
+    it("Sets the anonaddress", async () => { 
+      expect(await tokenMaster.anonaddress()).to.equal(ADDDRESS);
+    });
   });
 
   describe("Occasions", () => {
@@ -62,7 +67,7 @@ describe("TokenMaster", () => {
       expect(occasion.date).to.be.equal(OCCASION_DATE);
       expect(occasion.time).to.be.equal(OCCASION_TIME);
       expect(occasion.location).to.be.equal(OCCASION_LOCATION);
-      expect(occasion.above18).to.be.equal(OCCASION_ABOVE18);
+      expect(occasion.iseighteenplus).to.be.equal(OCCASION_ABOVE18);
     });
 
     it("Updates occasions count", async () => {

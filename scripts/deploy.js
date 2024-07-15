@@ -9,14 +9,12 @@ async function main() {
   const [deployer] = await ethers.getSigners()
   const NAME = "showtime"
   const SYMBOL = "ST"
-  const anonaddress =  "0x8626f6940E2eb28930eFb4CeF49B2d1F2C9C1199";
-
   // Deploy contract
   const TokenMaster = await ethers.getContractFactory("ShowTime")
-  const tokenMaster = await TokenMaster.deploy(NAME, SYMBOL,anonaddress)
+  const tokenMaster = await TokenMaster.deploy(NAME, SYMBOL)
   await tokenMaster.deployed()
 
-  console.log(Deployed TokenMaster Contract at: ${tokenMaster.address}\n)
+  console.log(`Deployed TokenMaster Contract at: ${tokenMaster.address}\n`)
 
   // List 6 events
   const occasions = [
@@ -27,6 +25,7 @@ async function main() {
       date: "May 31",
       time: "6:00PM EST",
       location: "Miami-Dade Arena - Miami, FL",
+      iseighteenplus : false
 
     },
     {
@@ -80,7 +79,7 @@ async function main() {
 
     await transaction.wait()
 
-    console.log(Listed Event ${i + 1}: ${occasions[i].name})
+    console.log(`Listed Event ${i + 1}: ${occasions[i].name}`)
   }
 }
 

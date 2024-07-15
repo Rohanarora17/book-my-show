@@ -23,8 +23,9 @@ const SeatChart = ({ occasion, tokenMaster, provider, setToggle }) => {
       setIsModalOpen(false);
       // if (anonAadhaar?.anonAadhaarProofs) {
       //   console.log("Anon Aadhaar Proofs: ", anonAadhaar?.anonAadhaarProofs);
-      //   handleModalUpload();
+      //   handleModalUpload(anonAadhaar?.anonAadhaarProofs);
       // }
+      handleModalUpload();
     }
   }, [anonAadhaar]);
 
@@ -38,18 +39,46 @@ const SeatChart = ({ occasion, tokenMaster, provider, setToggle }) => {
     setIsModalOpen(true);
   };
 
+  // const handleModalUpload = async (e) => {
+  //   console.log("Proofs: ", e);
+  //   setIsModalOpen(false);
+  //   setHasSold(false);
+  
+  //   try {
+  //     // Ensure the proof object is properly parsed
+  //     const proofs = JSON.parse(e[0].pcd);
+  //     const ageAbove18 = proofs.proof.ageAbove18;
+  //     console.log("Age Above 18: ", ageAbove18);
+  //     let iseighteen = ageAbove18?true:false;
+  //     const signer = await provider.getSigner();
+  //     const transaction = await tokenMaster
+  //       .connect(signer)
+  //       .mint(
+  //         occasion.id,
+  //         seatToPurchase,
+  //         redirectLogin,
+  //         iseighteen,
+  //         { value: occasion.cost }
+  //       );
+  
+  //     await transaction.wait();
+  //     setHasSold(true);
+  //   } catch (error) {
+  //     console.error("Error in handleModalUpload:", error);
+  //     // Handle the error appropriately in the UI
+  //   }
+  // };
+
+
   const handleModalUpload = async () => {
-    setIsModalOpen(false);
-    setHasSold(false);
+    setHasSold(false)
 
-    const signer = await provider.getSigner();
-    const transaction = await tokenMaster
-      .connect(signer)
-      .mint(occasion.id, seatToPurchase, { value: occasion.cost });
-    await transaction.wait();
+    const signer = await provider.getSigner()
+    const transaction = await tokenMaster.connect(signer).mint(occasion.id, seatToPurchase, { value: occasion.cost })
+    await transaction.wait()
 
-    setHasSold(true);
-  };
+    setHasSold(true)
+  }
 
   useEffect(() => {
     getSeatsTaken();

@@ -13,22 +13,20 @@ const SeatChart = ({ occasion, tokenMaster, provider, setToggle }) => {
   const [seatToPurchase, setSeatToPurchase] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [anonAadhaar] = useAnonAadhaar();
-  const [redirectLogin, setRedirectLogin] = useState(false);
-  const [isAdult, setIsAdult] = useState(false);
 
   useEffect(() => {
     console.log("Anon Aadhaar : ", anonAadhaar);
     console.log("Anon Aadhaar status: ", anonAadhaar.status);
     if (anonAadhaar?.status === "logged-in") {
-      setRedirectLogin(true);
       setIsModalOpen(false);
       if (anonAadhaar?.anonAadhaarProofs) {
         console.log("Anon Aadhaar Proofs: ", anonAadhaar?.anonAadhaarProofs);
         const proofs = JSON.parse(anonAadhaar?.anonAadhaarProofs[0].pcd);
         const ageAbove18 = proofs.proof.ageAbove18;
         console.log("ageAbove18", ageAbove18);
-        setIsAdult(ageAbove18);
-        handleModalUpload();
+        const isVerified = anonAadhaar?.status === "logged-in" ? true : false;
+
+        handleModalUpload(isVerified, ageAbove18);
       }
     }
   }, [anonAadhaar]);
@@ -73,13 +71,13 @@ const SeatChart = ({ occasion, tokenMaster, provider, setToggle }) => {
   //   }
   // };
 
-  const handleModalUpload = async () => {
+  const handleModalUpload = async (isVerified, ageAbove18) => {
     setHasSold(false);
 
     const signer = await provider.getSigner();
     const transaction = await tokenMaster
       .connect(signer)
-      .mint(occasion.id, seatToPurchase, redirectLogin, isAdult, {
+      .mint(occasion.id, seatToPurchase, isVerified, ageAbove18, {
         value: occasion.cost,
       });
     await transaction.wait();

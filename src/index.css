@@ -534,3 +534,13 @@ header {
     place-self: center;
   }
 }
+
+.badge {
+  background-color: red;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-weight: bold;
+  margin-top: 10px;
+  display: inline-block;
+}

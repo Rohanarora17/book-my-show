@@ -40,6 +40,7 @@ function App() {
 
     for (var i = 1; i <= totalOccasions; i++) {
       const occasion = await tokenMaster.getOccasion(i);
+      console.log("occassions ", occasion);
       occasions.push(occasion);
     }
 

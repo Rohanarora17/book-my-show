@@ -14,6 +14,7 @@ const SeatChart = ({ occasion, tokenMaster, provider, setToggle }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [anonAadhaar] = useAnonAadhaar();
   const [redirectLogin, setRedirectLogin] = useState(false);
+  const [isAdult, setIsAdult] = useState(false);
 
   useEffect(() => {
     console.log("Anon Aadhaar : ", anonAadhaar);
@@ -21,11 +22,14 @@ const SeatChart = ({ occasion, tokenMaster, provider, setToggle }) => {
     if (anonAadhaar?.status === "logged-in") {
       setRedirectLogin(true);
       setIsModalOpen(false);
-      // if (anonAadhaar?.anonAadhaarProofs) {
-      //   console.log("Anon Aadhaar Proofs: ", anonAadhaar?.anonAadhaarProofs);
-      //   handleModalUpload(anonAadhaar?.anonAadhaarProofs);
-      // }
-      handleModalUpload();
+      if (anonAadhaar?.anonAadhaarProofs) {
+        console.log("Anon Aadhaar Proofs: ", anonAadhaar?.anonAadhaarProofs);
+        const proofs = JSON.parse(anonAadhaar?.anonAadhaarProofs[0].pcd);
+        const ageAbove18 = proofs.proof.ageAbove18;
+        console.log("ageAbove18", ageAbove18);
+        setIsAdult(ageAbove18);
+        handleModalUpload();
+      }
     }
   }, [anonAadhaar]);
 
@@ -43,7 +47,7 @@ const SeatChart = ({ occasion, tokenMaster, provider, setToggle }) => {
   //   console.log("Proofs: ", e);
   //   setIsModalOpen(false);
   //   setHasSold(false);
-  
+
   //   try {
   //     // Ensure the proof object is properly parsed
   //     const proofs = JSON.parse(e[0].pcd);
@@ -60,7 +64,7 @@ const SeatChart = ({ occasion, tokenMaster, provider, setToggle }) => {
   //         iseighteen,
   //         { value: occasion.cost }
   //       );
-  
+
   //     await transaction.wait();
   //     setHasSold(true);
   //   } catch (error) {
@@ -69,16 +73,19 @@ const SeatChart = ({ occasion, tokenMaster, provider, setToggle }) => {
   //   }
   // };
 
-
   const handleModalUpload = async () => {
-    setHasSold(false)
+    setHasSold(false);
 
-    const signer = await provider.getSigner()
-    const transaction = await tokenMaster.connect(signer).mint(occasion.id, seatToPurchase, { value: occasion.cost })
-    await transaction.wait()
+    const signer = await provider.getSigner();
+    const transaction = await tokenMaster
+      .connect(signer)
+      .mint(occasion.id, seatToPurchase, redirectLogin, isAdult, {
+        value: occasion.cost,
+      });
+    await transaction.wait();
 
-    setHasSold(true)
-  }
+    setHasSold(true);
+  };
 
   useEffect(() => {
     getSeatsTaken();

@@ -64,12 +64,13 @@ contract ShowTime is ERC721 {
         _iseighteenplus
         );
     }
-    function mint(uint _id, uint256 _seat) public payable {
+    function mint(uint _id, uint256 _seat, bool isverified, bool iseighteen) public payable {
         require(_id != 0 );
         require((_id <= totalOccasions));
         require(msg.value >= occasions[_id].cost);
         require(seatTaken[_id][_seat] == address(0));
         require(_seat <= occasions[_id].maxTickets);
+        require(isverified == true && iseighteen == occasions[_id].iseighteenplus);
       
         occasions[_id].tickets -= 1;
         hasBought[_id][msg.sender] = true;

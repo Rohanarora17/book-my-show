@@ -333,6 +333,16 @@
         "internalType": "uint256",
         "name": "_seat",
         "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "isverified",
+        "type": "bool"
+      },
+      {
+        "internalType": "bool",
+        "name": "iseighteen",
+        "type": "bool"
       }
     ],
     "name": "mint",

@@ -1,3 +1,4 @@
+
 const hre = require("hardhat")
 
 const tokens = (n) => {
@@ -9,9 +10,11 @@ async function main() {
   const [deployer] = await ethers.getSigners()
   const NAME = "showtime"
   const SYMBOL = "ST"
+  const anonaddress =  "0x8626f6940E2eb28930eFb4CeF49B2d1F2C9C1199";
+
   // Deploy contract
   const TokenMaster = await ethers.getContractFactory("ShowTime")
-  const tokenMaster = await TokenMaster.deploy(NAME, SYMBOL)
+  const tokenMaster = await TokenMaster.deploy(NAME, SYMBOL,anonaddress)
   await tokenMaster.deployed()
 
   console.log(`Deployed TokenMaster Contract at: ${tokenMaster.address}\n`)
@@ -85,5 +88,5 @@ async function main() {
 
 main().catch((error) => {
   console.error(error);
-  process.exitCode = 1;
+  process.exitCode = 1;
 });

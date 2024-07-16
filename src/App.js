@@ -90,6 +90,7 @@ function App() {
 
         {toggle && (
           <SeatChart
+            account={account}
             occasion={occasion}
             tokenMaster={tokenMaster}
             provider={provider}

@@ -10,7 +10,7 @@ import {
 // Import Assets
 import close from "../assets/close.svg";
 
-const SeatChart = ({ occasion, tokenMaster, provider, setToggle }) => {
+const SeatChart = ({ occasion, tokenMaster, provider, setToggle, account }) => {
   const [seatsTaken, setSeatsTaken] = useState(false);
   const [hasSold, setHasSold] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -18,24 +18,7 @@ const SeatChart = ({ occasion, tokenMaster, provider, setToggle }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [anonAadhaar] = useAnonAadhaar();
   const [anonAadhaarCore, setAnonAadhaarCore] = useState();
-  const [walletAddress, setWalletAddress] = useState("");
-
-  const connectWallet = async () => {
-    if (typeof window.ethereum !== "undefined") {
-      try {
-        const accounts = await window.ethereum.request({
-          method: "eth_requestAccounts",
-        });
-        console.log("accounts", accounts);
-        setWalletAddress(accounts[1]);
-      } catch (error) {
-        console.error("User denied account access");
-      }
-    } else {
-      console.log("Please install MetaMask!");
-    }
-  };
-
+  console.log("account", account);
   useEffect(() => {
     console.log("Anon Aadhaar : ", anonAadhaar);
     console.log("Anon Aadhaar status: ", anonAadhaar.status);
@@ -43,14 +26,16 @@ const SeatChart = ({ occasion, tokenMaster, provider, setToggle }) => {
       setIsModalOpen(false);
       if (anonAadhaar?.anonAadhaarProofs) {
         console.log("Anon Aadhaar Proofs: ", anonAadhaar?.anonAadhaarProofs);
+        console.log(
+          "Anon Aadhaar Proofs: ",
+          JSON.stringify(anonAadhaar?.anonAadhaarProofs)
+        );
         const proofs = JSON.parse(anonAadhaar?.anonAadhaarProofs[0].pcd);
-        const ageAbove18 = proofs.proof.ageAbove18;
-        console.log("ageAbove18", ageAbove18);
+        console.log("proofs", proofs);
+        console.log("proofs.proofs", proofs.proof);
+        setAnonAadhaarCore(proofs.proof);
 
-        console.log("signal", proofs.proof.signal);
-        const isVerified = anonAadhaar?.status === "logged-in" ? true : false;
-
-        handleModalUpload(isVerified, ageAbove18);
+        handleModalUpload(proofs.proof);
       }
     }
   }, [anonAadhaar]);
@@ -97,17 +82,29 @@ const SeatChart = ({ occasion, tokenMaster, provider, setToggle }) => {
   //   }
   // };
 
-  const handleModalUpload = async (isVerified, ageAbove18) => {
+  const handleModalUpload = async (proof) => {
     try {
       setHasSold(false);
 
-      // Debug log for initial state
       console.log("Minting process started");
-      console.log("Occasion ID:", occasion.id);
-      console.log("Seat to Purchase:", seatToPurchase);
-      console.log("isVerified:", isVerified);
-      console.log("ageAbove18:", ageAbove18);
-      console.log("Cost:", occasion.cost);
+
+      const nullifierSeed = proof.nullifierSeed;
+      console.log("nullifierSeed", nullifierSeed);
+      const nullifier = proof.nullifier;
+      console.log("nullifier", nullifier);
+      const signal = proof.signalHash;
+      console.log("signal", signal);
+      const timestamp = proof.timestamp;
+      console.log("timestamp", timestamp);
+      const revealArray = [
+        proof.ageAbove18,
+        proof.gender,
+        proof.pincode,
+        proof.state,
+      ];
+      console.log("revealArray", revealArray);
+      const groth16Proof = packGroth16Proof(proof.groth16Proof);
+      console.log("groth16Proof", groth16Proof);
 
       const signer = await provider.getSigner();
 
@@ -116,9 +113,19 @@ const SeatChart = ({ occasion, tokenMaster, provider, setToggle }) => {
 
       const transaction = await tokenMaster
         .connect(signer)
-        .mint(occasion.id, seatToPurchase, isVerified, ageAbove18, {
-          value: occasion.cost,
-        });
+        .mint(
+          occasion.id,
+          seatToPurchase,
+          nullifierSeed,
+          nullifier,
+          timestamp,
+          signal,
+          revealArray,
+          groth16Proof,
+          {
+            value: occasion.cost,
+          }
+        );
 
       // Debug log for transaction
       console.log("Transaction sent:", transaction);
@@ -223,7 +230,7 @@ const SeatChart = ({ occasion, tokenMaster, provider, setToggle }) => {
               nullifierSeed={1234}
               useTestAadhaar={true}
               fieldsToReveal={["revealAgeAbove18"]}
-              signal={walletAddress}
+              signal={account}
             />
           </div>
         </div>

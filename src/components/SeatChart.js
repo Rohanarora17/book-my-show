@@ -32,7 +32,9 @@ const SeatChart = ({ occasion, tokenMaster, provider, setToggle }) => {
   }, [anonAadhaar]);
 
   const getSeatsTaken = async () => {
+    console.log("reached at get seats taken");
     const seatsTaken = await tokenMaster.getSeatsTaken(occasion.id);
+    console.log("seats taken", seatsTaken);
     setSeatsTaken(seatsTaken);
   };
 
@@ -72,17 +74,43 @@ const SeatChart = ({ occasion, tokenMaster, provider, setToggle }) => {
   // };
 
   const handleModalUpload = async (isVerified, ageAbove18) => {
-    setHasSold(false);
+    try {
+      setHasSold(false);
 
-    const signer = await provider.getSigner();
-    const transaction = await tokenMaster
-      .connect(signer)
-      .mint(occasion.id, seatToPurchase, isVerified, ageAbove18, {
-        value: occasion.cost,
-      });
-    await transaction.wait();
+      // Debug log for initial state
+      console.log("Minting process started");
+      console.log("Occasion ID:", occasion.id);
+      console.log("Seat to Purchase:", seatToPurchase);
+      console.log("isVerified:", isVerified);
+      console.log("ageAbove18:", ageAbove18);
+      console.log("Cost:", occasion.cost);
 
-    setHasSold(true);
+      const signer = await provider.getSigner();
+
+      // Debug log for signer
+      console.log("Signer obtained:", signer);
+
+      const transaction = await tokenMaster
+        .connect(signer)
+        .mint(occasion.id, seatToPurchase, isVerified, ageAbove18, {
+          value: occasion.cost,
+        });
+
+      // Debug log for transaction
+      console.log("Transaction sent:", transaction);
+
+      await transaction.wait();
+
+      // Debug log for transaction confirmation
+      console.log("Transaction confirmed:", transaction);
+
+      setHasSold(true);
+
+      // Debug log for final state
+      console.log("Minting process completed successfully");
+    } catch (error) {
+      console.error("Error during the minting process:", error);
+    }
   };
 
   useEffect(() => {

@@ -2,7 +2,11 @@ import { useEffect, useState } from "react";
 import { LogInWithAnonAadhaar, useAnonAadhaar } from "@anon-aadhaar/react";
 // Import Components
 import Seat from "./Seat";
-
+import {
+  AnonAadhaarCore,
+  deserialize,
+  packGroth16Proof,
+} from "@anon-aadhaar/core";
 // Import Assets
 import close from "../assets/close.svg";
 
@@ -13,6 +17,24 @@ const SeatChart = ({ occasion, tokenMaster, provider, setToggle }) => {
   const [seatToPurchase, setSeatToPurchase] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [anonAadhaar] = useAnonAadhaar();
+  const [anonAadhaarCore, setAnonAadhaarCore] = useState();
+  const [walletAddress, setWalletAddress] = useState("");
+
+  const connectWallet = async () => {
+    if (typeof window.ethereum !== "undefined") {
+      try {
+        const accounts = await window.ethereum.request({
+          method: "eth_requestAccounts",
+        });
+        console.log("accounts", accounts);
+        setWalletAddress(accounts[1]);
+      } catch (error) {
+        console.error("User denied account access");
+      }
+    } else {
+      console.log("Please install MetaMask!");
+    }
+  };
 
   useEffect(() => {
     console.log("Anon Aadhaar : ", anonAadhaar);
@@ -24,6 +46,8 @@ const SeatChart = ({ occasion, tokenMaster, provider, setToggle }) => {
         const proofs = JSON.parse(anonAadhaar?.anonAadhaarProofs[0].pcd);
         const ageAbove18 = proofs.proof.ageAbove18;
         console.log("ageAbove18", ageAbove18);
+
+        console.log("signal", proofs.proof.signal);
         const isVerified = anonAadhaar?.status === "logged-in" ? true : false;
 
         handleModalUpload(isVerified, ageAbove18);
@@ -199,6 +223,7 @@ const SeatChart = ({ occasion, tokenMaster, provider, setToggle }) => {
               nullifierSeed={1234}
               useTestAadhaar={true}
               fieldsToReveal={["revealAgeAbove18"]}
+              signal={walletAddress}
             />
           </div>
         </div>

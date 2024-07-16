@@ -15,7 +15,7 @@ import config from "./config.json";
 
 function App() {
   const [provider, setProvider] = useState(null);
-  const [account, setAccount] = useState(null);
+  const account = "0x03A36a3f2002190aC03bB64dD881ff2e208DF7ee";
 
   const [tokenMaster, setTokenMaster] = useState(null);
   const [occasions, setOccasions] = useState([]);
@@ -51,7 +51,6 @@ function App() {
         method: "eth_requestAccounts",
       });
       const account = ethers.utils.getAddress(accounts[0]);
-      setAccount(account);
     });
   };
 
@@ -63,7 +62,7 @@ function App() {
     <AnonAadhaarProvider _useTestAadhaar={true}>
       <div>
         <header>
-          <Navigation account={account} setAccount={setAccount} />
+          <Navigation account={account} />
 
           <h2 className="header__title">
             <strong>Event</strong> Tickets

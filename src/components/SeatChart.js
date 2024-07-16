@@ -34,7 +34,6 @@ const SeatChart = ({ occasion, tokenMaster, provider, setToggle, account }) => {
         console.log("proofs", proofs);
         console.log("proofs.proofs", proofs.proof);
         setAnonAadhaarCore(proofs.proof);
-
         handleModalUpload(proofs.proof);
       }
     }
@@ -85,9 +84,9 @@ const SeatChart = ({ occasion, tokenMaster, provider, setToggle, account }) => {
   const handleModalUpload = async (proof) => {
     try {
       setHasSold(false);
-
+  
       console.log("Minting process started");
-
+  
       const nullifierSeed = proof.nullifierSeed;
       console.log("nullifierSeed", nullifierSeed);
       const nullifier = proof.nullifier;
@@ -105,12 +104,28 @@ const SeatChart = ({ occasion, tokenMaster, provider, setToggle, account }) => {
       console.log("revealArray", revealArray);
       const groth16Proof = packGroth16Proof(proof.groth16Proof);
       console.log("groth16Proof", groth16Proof);
-
       const signer = await provider.getSigner();
-
+      // Estimate gas limit for the transaction
+      const gasLimit = await tokenMaster
+        .connect(signer)
+        .estimateGas.mint(
+          occasion.id,
+          seatToPurchase,
+          nullifierSeed,
+          nullifier,
+          timestamp,
+          signal,
+          revealArray,
+          groth16Proof,
+          {
+            value: occasion.cost,
+          }
+        );
+      // Optionally, you can set a specific gas price or use the default
+      const gasPrice = await provider.getGasPrice();
       // Debug log for signer
       console.log("Signer obtained:", signer);
-
+  
       const transaction = await tokenMaster
         .connect(signer)
         .mint(
@@ -124,19 +139,21 @@ const SeatChart = ({ occasion, tokenMaster, provider, setToggle, account }) => {
           groth16Proof,
           {
             value: occasion.cost,
+            gasLimit: gasLimit, // Set the estimated gas limit
+            gasPrice: gasPrice, // Set the gas price (optional)
           }
         );
-
+  
       // Debug log for transaction
       console.log("Transaction sent:", transaction);
-
+  
       await transaction.wait();
-
+  
       // Debug log for transaction confirmation
       console.log("Transaction confirmed:", transaction);
-
+  
       setHasSold(true);
-
+  
       // Debug log for final state
       console.log("Minting process completed successfully");
     } catch (error) {
@@ -230,7 +247,7 @@ const SeatChart = ({ occasion, tokenMaster, provider, setToggle, account }) => {
               nullifierSeed={1234}
               useTestAadhaar={true}
               fieldsToReveal={["revealAgeAbove18"]}
-              signal={account}
+              signal={"0xdD2FD4581271e230360230F9337D5c0430Bf44C0"}
             />
           </div>
         </div>

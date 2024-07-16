@@ -4,13 +4,13 @@
 This is a decentralized event ticket buying platform where only valid users can buy tickets in the form of NFTs on Ethereum using their Aadhaar card with the help of ANON ADHAAR. There is also age verification for certain events that are age-restricted; users' zk Aadhaar proof will reveal age and check whether the user is allowed to attend that event or not.
 
 ## Table of Contents
-- [Installation](#installation)
-- [Usage](#usage)
-- [Commands](#commands)
-- [Project Structure](#project-structure)
-- [Contributing](#contributing)
-- [License](#license)
-- [Contact Information](#contact-information)
+- [zkbookmyshow](#zkbookmyshow)
+  - [Table of Contents](#table-of-contents)
+  - [Installation](#installation)
+    - [Prerequisites](#prerequisites)
+    - [Steps](#steps)
+  - [Key Benefits](#key-benefits)
+
 
 ## Installation
 
@@ -54,7 +54,7 @@ Go to Accounts -> Import Account -> From Private Key.
 Paste the private key of any one of the addresses listed in the terminal where you ran npx hardhat node.
 Connect the Metamask account to localhost.
 
-#### Key Benefits
+## Key Benefits
 
 1. **Decentralized Platform**
    - Operates on the Ethereum blockchain, ensuring transparency, security, and trustlessness in ticket transactions.
